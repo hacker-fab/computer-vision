@@ -3,7 +3,7 @@
 """
 Created on Wed Nov  1 21:14:18 2023
 
-@author: frankyanzhi
+@author: frankzhao
 """
 # dot detection and count
 import cv2
@@ -15,15 +15,29 @@ def detect_dot_centers(image_path):
     image = cv2.resize(image, None, fx=0.25, fy=0.25)
     # Convert the image to grayscale for circle detection
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # img preprocessing
-    # clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(20, 20))
-    # cl1 = clahe.apply(gray)
-    # Apply histogram equalization to enhance contrast
-    equalized_gray = cv2.equalizeHist(gray)
-    # equalized_gray = cl1
+    cv2.imshow("gray",gray)
+    cv2.waitKey(0)
 
-    cv2.imshow("gray",equalized_gray)
-    cv2.waitKey(0)#to show img preprocessing
+
+    clahe = cv2.createCLAHE(clipLimit=5.0, tileGridSize=(5, 5))
+    cl1 = clahe.apply(gray)
+    cv2.imshow("gray",cl1)
+    cv2.waitKey(0)
+
+    imgblur=cv2.GaussianBlur(cl1, (5,5), 0)
+    cv2.imshow("gray",imgblur)
+    cv2.waitKey(0)
+
+    add2img=cv2.add(imgblur,imgblur)
+    add3img=cv2.add(add2img,imgblur)
+    cv2.imshow("gray",add3img)
+    cv2.waitKey(0)
+
+#   equalized_gray = cv2.equalizeHist(addimg)
+#   cv2.imshow("gray",equalized_gray)
+#   cv2.waitKey(0)
+    equalized_gray=add3img
+
     # HoughCircles detection, parameters need be tuned
     circles = cv2.HoughCircles(equalized_gray, cv2.HOUGH_GRADIENT, dp=1, minDist=70,
                                param1=50, param2=35, minRadius=25, maxRadius=45)
@@ -33,10 +47,10 @@ def detect_dot_centers(image_path):
         for (x, y, r) in circles:
             cv2.circle(image, (x, y), r, (0, 255, 0), 2)  # Draw circle
             cv2.rectangle(image, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)  # Draw center of circle
-    
+
         # Save the output image with detected centers
         cv2.imwrite('output.png', image)
-        
+
         # display the image
         cv2.imshow("Detected Centers", image)
         cv2.waitKey(0)
@@ -44,4 +58,4 @@ def detect_dot_centers(image_path):
     else:
         print("No circles were detected.")
 
-detect_dot_centers('dot1.jpg')
+detect_dot_centers('dot2.jpg')
